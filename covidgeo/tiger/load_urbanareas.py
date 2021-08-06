@@ -20,7 +20,7 @@ mapping = {
 
 shp_path = '/data/tl_2020_us_uac10.shp'
 
-def run(verbose=True):
+def run(shp_path=shp_path, verbose=True):
     lm = LayerMapping(UrbanArea, shp_path, mapping, transform=False)
     lm.save(strict=True, verbose=verbose)
 

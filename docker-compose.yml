@@ -1,6 +1,30 @@
 version: "3.9"
 
 services:
+  django:
+    image: django
+    user: "1000:1000"
+    build:
+      context: .
+      dockerfile: docker/django/Dockerfile
+    working_dir: /code/covidgeo
+    command: python3 manage.py runserver 0.0.0.0:8000
+    volumes:
+      - ".:/code:Z"
+      - "./data:/data:Z"
+    restart: always
+    environment:
+      - DEBUG=True
+    ports:
+      - "8000:8000"
+    depends_on:
+      - "db"
+
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+
   db:
     image: postgis/postgis:latest
     volumes:
@@ -18,25 +42,6 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-
-  django:
-    image: django
-    build:
-      context: .
-      dockerfile: docker/django/Dockerfile
-    working_dir: /code/covidgeo
-    command: python3 manage.py runserver 0.0.0.0:8000
-    volumes:
-      - ".:/code:Z"
-      - "./data:/data:Z"
-    restart: always
-    environment:
-      - DEBUG=True
-    ports:
-      - "8000:8000"
-    depends_on:
-      - "db"
-
 
 volumes:
   db_data: {}
