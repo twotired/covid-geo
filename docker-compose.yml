@@ -20,6 +20,23 @@ services:
     depends_on:
       - "db"
 
+  celery:
+    image: django
+    user: "1000:1000"
+    build:
+      context: .
+      dockerfile: docker/django/Dockerfile
+    working_dir: /code/covidgeo
+    command: celery -A covidgeo worker --loglevel=INFO
+    volumes:
+      - ".:/code:Z"
+      - "./data:/data:Z"
+    restart: always
+    environment:
+      - DEBUG=False
+    depends_on:
+      - "db"
+
   redis:
     image: redis:latest
     ports:

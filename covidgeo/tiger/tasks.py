@@ -11,10 +11,6 @@ from . import load_states, load_counties, load_contressionaldistricts, load_urba
 
 logger = logging.getLogger('root')
 
-@shared_task
-def add2(x, y):
-    return x + y
-
 HOST = 'ftp2.census.gov'
 SCRATCH_DIR = '/data/scratch'
 
