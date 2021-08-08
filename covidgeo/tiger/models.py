@@ -20,14 +20,25 @@ class State(models.Model):
     intptlon = models.CharField(max_length=12, help_text='longitude of the internal point')
     geom = models.MultiPolygonField(srid=4269)
 
+    def get_counties(self):
+        return County.objects.filter(statefp=self.statefp).order_by('namelsad')
+
+    def get_congressionaldistricts(self):
+        return CongressionalDistrict.objects.filter(statefp=self.statefp).order_by('cd116fp')
+
+    def get_urbanareas(self):
+        return UrbanArea.objects.filter(geom__contained=self.geom).order_by('name10')
+
     def __str__(self):
         return self.name
+
 
 # manage.py ogrinspect --mapping --multi tl_2020_us_county.shp County
 class County(models.Model):
     statefp = models.CharField(max_length=2, help_text='state FIPS code')
     countyfp = models.CharField(max_length=3, help_text='county FIPS code')
     countyns = models.CharField(max_length=8, help_text='ANSI feature code for the county or equivalent feature')
+    # PK ?
     geoid = models.CharField(max_length=5, help_text='County identifier; a concatenation of Current state FIPS code and county FIPS code')
     name = models.CharField(max_length=100, help_text='county name')
     namelsad = models.CharField(max_length=100, help_text='name and the translated legal/statistical area description for county')
@@ -47,12 +58,23 @@ class County(models.Model):
     class Meta:
         verbose_name_plural = 'Counties'
 
+    def get_state(self):
+        return State.objects.get(statefp=self.statefp)
+
+    def get_congressionaldistricts(self):
+        return CongressionalDistrict.objects.filter(geom__overlaps=self.geom).order_by('cd116fp')
+
+    def get_urbanareas(self):
+        return UrbanArea.objects.filter(geom__overlaps=self.geom).order_by('name10')
+
     def __str__(self):
         return self.namelsad
+
 
 # manage.py ogrinspect --mapping --multi tl_2020_us_uac10.shp UrbanArea
 class UrbanArea(models.Model):
     uace10 = models.CharField(max_length=5, help_text='2010 Census urban area code')
+    # PK ?
     geoid10 = models.CharField(max_length=5, help_text='2010 Census urban area identifier; 2010 Census urban area code')
     name10 = models.CharField(max_length=100, help_text='2010 Census urban area name')
     namelsad10 = models.CharField(max_length=100, help_text='2010 Census name and the translated legal/statistical area description for urban area')
@@ -69,13 +91,21 @@ class UrbanArea(models.Model):
     class Meta:
         verbose_name_plural = 'Urban Areas'
 
+    def get_state(self):
+        return State.objects.get(geom__contains=self.geom)
+
+    def get_counties(self):
+        return County.objects.filter(geom__overlaps=self.geom).order_by('name')
+
     def __str__(self):
         return self.name10
+
 
 # manage.py ogrinspect --mapping --multi tl_2020_us_cd116.shp CongressionalDistrict
 class CongressionalDistrict(models.Model):
     statefp = models.CharField(max_length=2, help_text='state FIPS code')
     cd116fp = models.CharField(max_length=2, help_text='116th congressional district FIPS code')
+    # PK ?
     geoid = models.CharField(max_length=4, help_text='116th congressional district identifier; a concatenation of current state FIPS code and the 116th congressional district FIPS code')
     namelsad = models.CharField(max_length=41, help_text='name and the translated legal/statistical area description for congressional district')
     lsad = models.CharField(max_length=2, help_text='legal/statistical area description code for congressional district')
@@ -87,6 +117,12 @@ class CongressionalDistrict(models.Model):
     intptlat = models.CharField(max_length=11, help_text='latitude of the internal point')
     intptlon = models.CharField(max_length=12, help_text='longitude of the internal point')
     geom = models.MultiPolygonField(srid=4269)
+
+    def get_state(self):
+        return State.objects.get(statefp=self.statefp)
+
+    def get_counties(self):
+        return County.objects.filter(geom__overlaps=self.geom).order_by('name')
 
     def __str__(self):
         return self.namelsad
