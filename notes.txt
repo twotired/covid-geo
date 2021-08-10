@@ -1,0 +1,7 @@
+select *,
+cases - lag(cases, -1) over(order by date desc, state asc) new_cases,
+deaths - lag(deaths, -1) over(order by date desc, state asc) new_deaths
+from nytcoviddata_state
+where fips = 6
+order by date desc, state asc
+limit 20;

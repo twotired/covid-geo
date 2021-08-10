@@ -24,7 +24,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-z0d@m0s1f-jw!m+f5s#+^6x*z@c^79h(68^vonrxy$@9)srbfl'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv('DEBUG', 'False') == "True"
 
 ALLOWED_HOSTS = ["*"]
 
@@ -66,9 +66,12 @@ INSTALLED_APPS = [
     'django_celery_results',
     'rest_framework',
     'rest_framework_gis',
-    'django_filters', # Not compatible with python3?
+    'django_filters',
+    # 'csvimport.app.CSVImportConf',
+    'csvimport',
     'tiger',
     'nytcoviddata',
+    'kaggle_election'
 ]
 
 MIDDLEWARE = [
@@ -108,11 +111,11 @@ WSGI_APPLICATION = 'covidgeo.wsgi.application'
 DATABASES = {
     'default': {
          'ENGINE': 'django.contrib.gis.db.backends.postgis',
-         'NAME': 'postgres',
-         'USER': 'postgres',
-         'PASSWORD': 'covidgeo123',
-         'HOST': 'db',
-         'PORT': '5432',
+         'NAME': os.getenv('POSTGRES_DATABASE'),
+         'USER': os.getenv('POSTGRES_USER'),
+         'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
+         'HOST': os.getenv('POSTGRES_HOST', 'db'),
+         'PORT': os.getenv('POSTGRES_PORT', '5432'),
     },
 }
 

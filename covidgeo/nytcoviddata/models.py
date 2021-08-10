@@ -32,9 +32,9 @@ class State(models.Model):
 
 class County(models.Model):
     date = models.DateField(null=False)
-    county = models.CharField(max_length=128)
+    county = models.CharField(max_length=128) # can be 'Unknown'
     state = models.CharField(max_length=32)
-    fips = models.IntegerField(null=True)
+    fips = models.IntegerField(null=True)     # can be 0
     cases = models.BigIntegerField(null=False)
     deaths = models.BigIntegerField(null=True)
 
