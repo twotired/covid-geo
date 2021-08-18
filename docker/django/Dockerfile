@@ -3,6 +3,8 @@ FROM docker.io/library/alpine:3
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED=1
 
+RUN adduser -D -h /home/django -s /bin/sh django
+
 WORKDIR /code
 COPY requirements.txt /code
 
@@ -33,7 +35,5 @@ RUN apk update && \
 RUN ln /usr/bin/python3 /usr/bin/python
 
 CMD python3
-
-RUN adduser -D -h /home/django -s /bin/sh django
 
 USER django

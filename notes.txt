@@ -5,3 +5,71 @@ from nytcoviddata_state
 where fips = 6
 order by date desc, state asc
 limit 20;
+
+
+
+
+
+create or replace view county_info as select t.geoid, p.stname state, t.name county, t.statefp, t.countyfp,
+ census2010pop, popestimate2010, popestimate2011, popestimate2012, popestimate2013, popestimate2014, popestimate2015, popestimate2016, popestimate2017, popestimate2018, popestimate2019, popestimate2020
+from tiger_county t
+join
+(
+select
+lpad(state::text, 2, '0') || lpad(county::text, 3, '0') as geoid,
+*
+from uscensus_population where county != 0
+) p on (p.geoid = t.geoid)
+
+
+# TODO: use lag() to display change from previous day
+create view county_covid as select date, ci.state, ci.county, ci.popestimate2019 pop, cases, deaths
+from county_info ci
+join nytcoviddata_county nyt on (ci.geoid::text = lpad(nyt.fips::text, 5, '0'))
+
+select * from county_covid where state = 'California' and county = 'Alameda'
+order by date desc;
+
+select date, state, sum(cases), sum(deaths)
+from county_covid
+where state = 'California'
+group by date, state
+order by date desc
+
+create view trump_counties as select state, county
+from kaggle_election_presidentcounty2020
+where candidate = 'Donald Trump' and won = 't' and state = 'California'
+order by county
+
+select t1.state, t1.county, t1.candidate as winner, t1.total_votes as winner_votes, t2.candidate as runner_up_name, t2.total_votes as runner_up_votes
+from (
+select *
+from kaggle_election_presidentcounty2020
+where state = 'California' and county = 'Alameda County'
+order by state, county, total_votes desc limit 1) t1,
+(
+select *
+from kaggle_election_presidentcounty2020
+where state = 'California' and county = 'Alameda County'
+order by state, county, total_votes desc limit 1 offset 1) t2
+
+with ranked as (
+	with cte as (
+	select *, row_number() over(partition by state, county order by total_votes desc)
+	from kaggle_election_presidentcounty2020
+	order by state,county,total_votes desc
+	)
+	select *
+	from cte
+	where row_number <= 2
+	order by state, county, row_number
+)
+select state,
+	county,
+	first_value(candidate) over (partition by state, county order by total_votes desc) winner,
+	first_value(party) over (partition by state, county order by total_votes desc) winner_party,
+	first_value(total_votes) over (partition by state, county order by total_votes desc) winner_votes,
+	first_value(candidate) over (partition by state, county order by total_votes asc) loser,
+	first_value(party) over (partition by state, county order by total_votes asc) loser_party,
+	first_value(total_votes) over (partition by state, county order by total_votes asc) loser_votes
+from ranked

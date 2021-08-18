@@ -71,7 +71,8 @@ INSTALLED_APPS = [
     'csvimport',
     'tiger',
     'nytcoviddata',
-    'kaggle_election'
+    'kaggle_election',
+    'uscensus'
 ]
 
 MIDDLEWARE = [
