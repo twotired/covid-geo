@@ -72,7 +72,8 @@ INSTALLED_APPS = [
     'tiger',
     'nytcoviddata',
     'kaggle_election',
-    'uscensus'
+    'uscensus',
+    'covidgeo'
 ]
 
 MIDDLEWARE = [

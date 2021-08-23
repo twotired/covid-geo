@@ -21,6 +21,28 @@ lpad(state::text, 2, '0') || lpad(county::text, 3, '0') as geoid,
 from uscensus_population where county != 0
 ) p on (p.geoid = t.geoid)
 
+SELECT t.geoid,
+   p.stname AS state,
+   t.name AS county,
+   t.statefp,
+   t.countyfp,
+   p.census2010pop,
+   p.popestimate2019
+  FROM tiger_county t
+    JOIN ( SELECT lpad(uscensus_population.state::text, 2, '0'::text) || lpad(uscensus_population.county::text, 3, '0'::text) AS geoid,
+           uscensus_population.id,
+           uscensus_population.sumlev,
+           uscensus_population.region,
+           uscensus_population.division,
+           uscensus_population.state,
+           uscensus_population.county,
+           uscensus_population.stname,
+           uscensus_population.ctyname,
+           uscensus_population.census2010pop,
+           uscensus_population.popestimate2019
+          FROM uscensus_population
+         WHERE uscensus_population.county > 0) p ON (p.state = t.statefp::int and p.county = t.countyfp::int)
+
 
 # TODO: use lag() to display change from previous day
 create view county_covid as select date, ci.state, ci.county, ci.popestimate2019 pop, cases, deaths
@@ -73,3 +95,72 @@ select state,
 	first_value(party) over (partition by state, county order by total_votes asc) loser_party,
 	first_value(total_votes) over (partition by state, county order by total_votes asc) loser_votes
 from ranked
+
+
+create view county_results as with ranked as (
+	with cte as (
+	select *, row_number() over(partition by state, county order by total_votes desc)
+	from kaggle_election_presidentcounty2020
+	order by state,county,total_votes desc
+	)
+	select *
+	from cte
+	where row_number <= 2
+	order by state, county, row_number
+)
+select distinct ranked.state,
+	ranked.county,
+	first_value(ranked.candidate) over (partition by ranked.state, ranked.county order by ranked.total_votes desc) winner,
+	first_value(ranked.party) over (partition by ranked.state, ranked.county order by ranked.total_votes desc) winner_party,
+	first_value(ranked.total_votes) over (partition by ranked.state, ranked.county order by ranked.total_votes desc) winner_votes,
+	100 * first_value(ranked.total_votes) over (partition by ranked.state, ranked.county order by ranked.total_votes desc) / totals.total_votes::float winner_pct,
+	first_value(ranked.candidate) over (partition by ranked.state, ranked.county order by ranked.total_votes asc) loser,
+	first_value(ranked.party) over (partition by ranked.state, ranked.county order by ranked.total_votes asc) loser_party,
+	first_value(ranked.total_votes) over (partition by ranked.state, ranked.county order by ranked.total_votes asc) loser_votes,
+	100 * first_value(ranked.total_votes) over (partition by ranked.state, ranked.county order by ranked.total_votes asc) / totals.total_votes::float loser_pct,
+	totals.total_votes
+from ranked
+join (
+	select state, county, sum(total_votes) total_votes
+	from kaggle_election_presidentcounty2020
+	where total_votes > 0
+	group by state, county
+) totals on (ranked.state = totals.state and ranked.county = totals.county)
+
+
+
+
+
+#### custom migration for view example ####
+
+# -*- coding: utf-8 -*-
+from __future__ import unicode_literals
+
+from django.db import migrations
+
+
+class Migration(migrations.Migration):
+
+    dependencies = [
+        ('myapp', '0002_previousdependency'),
+    ]
+
+    sql = """
+    create VIEW myapp_myview as
+     select your view here
+    """
+
+    operations = [
+        migrations.RunSQL("drop view if exists myapp_myview;"),
+        migrations.RunSQL(sql)
+    ]
+
+# then make a model with managed = False
+
+#########
+
+Django's migrations framework lets you execute raw SQL - https://docs.djangoproject.com/en/3.1/ref/migration-operations/#runsql
+
+So, you could create an empty migration (manage.py makemigrations <appname> --empty) and then edit it to execute your view-creating SQL via a migrations.RunSQL() call.
+
+#########

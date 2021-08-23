@@ -4,9 +4,9 @@ from django.contrib.gis.db import models
 class State(models.Model):
     region = models.CharField(max_length=2, help_text='region code')
     division = models.CharField(max_length=2, help_text='division code')
-    statefp = models.CharField(max_length=2, help_text='state FIPS code')
+    statefp = models.IntegerField(help_text='state FIPS code')
     statens = models.CharField(max_length=8, help_text='ANSI feature code for the state or equivalent entity')
-    geoid = models.CharField(max_length=2, help_text='State identifier; state FIPS code')
+    geoid = models.IntegerField(help_text='State identifier; state FIPS code')
     stusps = models.CharField(max_length=2,
                                 primary_key=True,
                                 help_text='United States Postal Service state abbreviation')
@@ -35,11 +35,10 @@ class State(models.Model):
 
 # manage.py ogrinspect --mapping --multi tl_2020_us_county.shp County
 class County(models.Model):
-    statefp = models.CharField(max_length=2, help_text='state FIPS code')
-    countyfp = models.CharField(max_length=3, help_text='county FIPS code')
+    statefp = models.IntegerField(help_text='state FIPS code')
+    countyfp = models.IntegerField(help_text='county FIPS code')
     countyns = models.CharField(max_length=8, help_text='ANSI feature code for the county or equivalent feature')
-    # PK ?
-    geoid = models.CharField(max_length=5, help_text='County identifier; a concatenation of Current state FIPS code and county FIPS code')
+    geoid = models.IntegerField(primary_key=True, help_text='County identifier; a concatenation of Current state FIPS code and county FIPS code')
     name = models.CharField(max_length=100, help_text='county name')
     namelsad = models.CharField(max_length=100, help_text='name and the translated legal/statistical area description for county')
     lsad = models.CharField(max_length=2, help_text='legal/statistical area description code for county')
@@ -74,8 +73,7 @@ class County(models.Model):
 # manage.py ogrinspect --mapping --multi tl_2020_us_uac10.shp UrbanArea
 class UrbanArea(models.Model):
     uace10 = models.CharField(max_length=5, help_text='2010 Census urban area code')
-    # PK ?
-    geoid10 = models.CharField(max_length=5, help_text='2010 Census urban area identifier; 2010 Census urban area code')
+    geoid10 = models.IntegerField(primary_key=True, help_text='2010 Census urban area identifier; 2010 Census urban area code')
     name10 = models.CharField(max_length=100, help_text='2010 Census urban area name')
     namelsad10 = models.CharField(max_length=100, help_text='2010 Census name and the translated legal/statistical area description for urban area')
     lsad10 = models.CharField(max_length=2, help_text='2010 Census legal/statistical area description code for urban area')
@@ -103,10 +101,9 @@ class UrbanArea(models.Model):
 
 # manage.py ogrinspect --mapping --multi tl_2020_us_cd116.shp CongressionalDistrict
 class CongressionalDistrict(models.Model):
-    statefp = models.CharField(max_length=2, help_text='state FIPS code')
-    cd116fp = models.CharField(max_length=2, help_text='116th congressional district FIPS code')
-    # PK ?
-    geoid = models.CharField(max_length=4, help_text='116th congressional district identifier; a concatenation of current state FIPS code and the 116th congressional district FIPS code')
+    statefp = models.IntegerField(help_text='state FIPS code')
+    cd116fp = models.IntegerField(help_text='116th congressional district FIPS code')
+    geoid = models.IntegerField(primary_key=True, help_text='116th congressional district identifier; a concatenation of current state FIPS code and the 116th congressional district FIPS code')
     namelsad = models.CharField(max_length=41, help_text='name and the translated legal/statistical area description for congressional district')
     lsad = models.CharField(max_length=2, help_text='legal/statistical area description code for congressional district')
     cdsessn = models.CharField(max_length=3, help_text='Congressional session code')
