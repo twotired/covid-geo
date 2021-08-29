@@ -7,6 +7,12 @@ class StateInfo(models.Model):
     census2010pop = models.IntegerField()
     popestimate2019 = models.IntegerField()
 
+    class Meta:
+        verbose_name_plural = 'State Info'
+        managed = False
+        db_table = 'state_info'
+
+
 class CountyInfo(models.Model):
     geoid = models.IntegerField(primary_key=True)
     state = models.CharField(max_length=128)
@@ -17,7 +23,7 @@ class CountyInfo(models.Model):
     popestimate2019 = models.IntegerField()
 
     class Meta:
-        verbose_name_plural = 'CountiesInfo'
+        verbose_name_plural = 'County Info'
         managed = False
         db_table = 'county_info'
 
