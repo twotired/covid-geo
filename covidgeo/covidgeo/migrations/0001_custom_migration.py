@@ -32,7 +32,26 @@ class Migration(migrations.Migration):
         order by state,county
     """
 
+    sql2 = """
+    create VIEW state_info as
+    SELECT ts.geoid,
+       ts.name AS state,
+       ts.statefp,
+       p.census2010pop,
+       p.popestimate2019
+      FROM tiger_state ts
+        JOIN ( select
+               uscensus_population.state,
+               uscensus_population.census2010pop,
+               uscensus_population.popestimate2019
+              FROM uscensus_population
+             WHERE uscensus_population.county = 0) p ON (p.state = ts.statefp)
+     order by state
+    """
+
     operations = [
         migrations.RunSQL("drop view if exists county_info;"),
-        migrations.RunSQL(sql)
+        migrations.RunSQL(sql),
+        migrations.RunSQL("drop view if exists state_info;"),
+        migrations.RunSQL(sql2),
     ]
