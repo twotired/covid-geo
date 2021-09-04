@@ -9,7 +9,6 @@ from zipfile import ZipFile, BadZipFile
 from .models import *
 from . import load_states, load_counties, load_contressionaldistricts, load_urbanareas
 
-logger = logging.getLogger('root')
 
 HOST = 'ftp2.census.gov'
 SCRATCH_DIR = '/data/scratch'

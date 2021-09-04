@@ -22,6 +22,6 @@ shp_path = '/data/tl_2020_us_cd116.shp'
 
 def run(shp_path=shp_path, verbose=True):
     lm = LayerMapping(CongressionalDistrict, shp_path, mapping, transform=False)
-    lm.save(strict=True, verbose=verbose)
+    lm.save(strict=False, verbose=verbose)
 
 # from tiger import load_contressionaldistricts ; load_contressionaldistricts.run()

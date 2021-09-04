@@ -11,7 +11,7 @@ class Population(models.Model):
     county = models.IntegerField()
     stname = models.CharField(max_length=128)
     ctyname = models.CharField(max_length=128)
-    census2010pop = models.IntegerField()
+    census2010pop = models.IntegerField(null=True)
     estimatesbase2010 = models.IntegerField()
     popestimate2010 = models.IntegerField()
     popestimate2011 = models.IntegerField()

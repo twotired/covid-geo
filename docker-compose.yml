@@ -1,7 +1,7 @@
 version: "3.9"
 
 services:
-  django:
+  web:
     image: django
     user: "1000:1000"
     build:
@@ -42,11 +42,13 @@ services:
       - POSTGRES_PASSWORD=covidgeo123
     depends_on:
       - "db"
+      - "redis"
 
   redis:
     image: redis:alpine3.14
     ports:
       - "6379:6379"
+    restart: always
 
   db:
     image: postgis/postgis:13-3.1-alpine
