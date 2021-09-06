@@ -72,6 +72,13 @@ def import_states(truncate=False):
 
     logger.info("import complete")
 
+# TODO: optimize this
+# 1. load into array of dict()s.
+# 2. data cleansing
+# 3. sort desc on date
+# 4 insert newest first
+# 5. stop after x duplicates or y days
+
 @shared_task
 def import_counties(truncate=False):
     r = requests.get(COUNTIES_URL)
