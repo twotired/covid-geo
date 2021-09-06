@@ -67,8 +67,6 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_gis',
     'django_filters',
-    # 'csvimport.app.CSVImportConf',
-    'csvimport',
     'tiger',
     'nytcoviddata',
     'kaggle_election',

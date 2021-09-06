@@ -58,8 +58,6 @@ def download_census_data(truncate=False):
             logger.error("integrity error(%s): %s", str(exception), line)
             pass
         except ValueError as exception:
-#            logger.warning("failed to import line: '%s' - '%s'", line, str(exception))
-#            logger.error("failed to import line: '%s' - '%s'", line, str(exception))
             logger.warning("failed to import record: %s", str(exception))
             pass
         except IndexError as exception:
