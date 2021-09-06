@@ -1,20 +1,12 @@
 
 docker-compose up
 
-docker exec -it -u $(id -u) covid-geogit_django_1 sh<br>
-      ./manage.py makemigrations<br>
-      ./manage.py migrate<br>
-      ./manage.py createsuperuser<br>
+docker-compose run web python3 ./manage.py makemigrations
+docker-compose run web python3 ./manage.py migrate
+docker-compose run web python3 ./manage.py createsuperuser --username admin --email admin@local.local
 
-./manage.py shell -c 'from tiger import tasks; tasks.download_states.delay(); tasks.download_contressionaldistricts.delay(); tasks.download_urbanareas.delay(); tasks.download_counties.delay()'
+docker-compose run web python3 ./manage.py shell -c 'from tiger import tasks; tasks.download_states.delay(); tasks.download_contressionaldistricts.delay(); tasks.download_urbanareas.delay(); tasks.download_counties.delay()'
+docker-compose run web python3 ./manage.py shell -c 'from uscensus import tasks; tasks.download_census_data.delay(True)'
+docker-compose run web python3 ./manage.py shell -c 'from kaggle_election import tasks; tasks.import_election2020.delay(True)'
+docker-compose run web python3 ./manage.py shell -c 'from nytcoviddata import tasks; tasks.import_national.delay(True); tasks.import_states.delay(True); tasks.import_counties.delay(True)'
 
-
-./manage.py importcsv --model='nytcoviddata.US' /data/scratch/covid-19-data/us.csv<br>
-./manage.py importcsv --model='nytcoviddata.State' /data/scratch/covid-19-data/us-states.csv<br>
-./manage.py importcsv --model='nytcoviddata.County' /data/scratch/covid-19-data/us-counties.csv<br>
-
-
-./manage.py importcsv --model='kaggle_election.PresidentCounty2020' /data/scratch/president_county_candidate.csv
-
-
-./manage.py importcsv --model='uscensus.Population' /data/scratch/co-est2020.csv
