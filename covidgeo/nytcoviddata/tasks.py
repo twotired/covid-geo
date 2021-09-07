@@ -97,6 +97,7 @@ def import_counties(truncate=True):
 
     lines = r.text.split('\n')
 
+    # TODO: Identify and log problematic entries
     with transaction.atomic():
         if truncate:
             logger.info("truncating table")
