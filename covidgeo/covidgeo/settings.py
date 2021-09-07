@@ -33,7 +33,8 @@ LOGGING = {
     'disable_existing_loggers': False,
     'formatters': {
         'verbose': {
-            'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
+            # 'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
+            'format': '{levelname} {asctime} {module} {process:d} {message}',
             'style': '{',
         },
         'simple': {
@@ -170,5 +171,5 @@ REST_FRAMEWORK = {
 # Celery Configuration Options
 CELERY_TIMEZONE = "US/Pacific"
 CELERY_TASK_TRACK_STARTED = True
-CELERY_TASK_TIME_LIMIT = 120 * 60
+CELERY_TASK_TIME_LIMIT = 240 * 60
 CELERY_RESULT_BACKEND = 'django-db'
