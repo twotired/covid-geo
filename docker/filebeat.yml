@@ -1,0 +1,61 @@
+filebeat.inputs:
+- type: container
+  paths:
+    - '/var/lib/docker/containers/*/*.log'
+
+filebeat.modules:
+- module: postgresql
+  log:
+    enabled: true
+    var.paths: ["/var/lib/postgresql/data/log/*.log"]
+
+processors:
+- add_docker_metadata:
+    host: "unix:///var/run/docker.sock"
+- drop_fields:
+    fields:
+      - 'agent.ephemeral_id'
+      - 'agent.hostname'
+      - 'agent.id'
+      - 'agent.type'
+      - 'agent.version'
+      - 'container.id'
+      - 'container.labels.com_docker_compose_oneoff'
+      - 'container.labels.com_docker_compose_project'
+      - 'container.labels.com_docker_compose_project_config_files'
+      - 'container.labels.com_docker_compose_project_working_dir'
+      - 'container.labels.com_docker_compose_slug'
+      - 'container.labels.com_docker_compose_version'
+      - 'ecs.version'
+      - 'host.name'
+      - 'log.file.path'
+      - 'log.offset'
+      - 'stream'
+# - include_fields:
+#     fields:
+#       - 'json.levelname'
+#       - 'json.message'
+#       - 'container.image.name'
+#       - 'container.labels.com_docker_compose_service'
+#       - 'container.name'
+#       - 'json.process'
+#       - 'json.thread'
+#       - 'json.threadName'
+#       # - 'message'
+#       # - 'levelname'
+
+- decode_json_fields:
+    fields: ["message"]
+    target: "json"
+    overwrite_keys: true
+    # add_error_key: true
+
+output.elasticsearch:
+  hosts: ["es01:9200"]
+  indices:
+    - index: "filebeat-%{[agent.version]}-%{+yyyy.MM.dd}"
+
+logging.json: true
+logging.metrics.enabled: false
+
+#setup.dashboards.enabled: true
