@@ -14,10 +14,11 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib.gis import admin
-from django.urls import path
-from django.urls import include, path
+from django.urls import include, path, reverse_lazy
+from django.views.generic.base import RedirectView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('tiger/', include('tiger.urls'))
+    path('tiger/', include(('tiger.urls', 'tiger'), namespace='tiger')),
+    path('', RedirectView.as_view(url=reverse_lazy('admin:index')))
 ]

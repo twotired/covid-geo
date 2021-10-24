@@ -6,7 +6,7 @@ from django.db.utils import IntegrityError
 
 from .models import *
 
-logger = logging.getLogger('root')
+logger = logging.getLogger(__name__)
 
 NATIONAL_URL = 'https://raw.githubusercontent.com/nytimes/covid-19-data/master/us.csv'
 STATES_URL = 'https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-states.csv'
@@ -32,7 +32,7 @@ def import_national(truncate=False):
 
     with transaction.atomic():
         if truncate:
-            logger.info("truncating table")
+            logger.info("truncating table %s", US.objects.model._meta.db_table)
             US.objects.all().delete()
             logger.debug("all objects removed")
 
@@ -48,7 +48,7 @@ def import_national(truncate=False):
             except IntegrityError as exception:
                 logger.warning("integrity error(%s): %s", str(exception), line)
 
-        logger.info("import complete")
+        logger.info("import complete for %s", US.objects.model._meta.db_table)
 
 @shared_task
 def import_states(truncate=False):
@@ -61,7 +61,7 @@ def import_states(truncate=False):
 
     with transaction.atomic():
         if truncate:
-            logger.info("truncating table")
+            logger.info("truncating table %s", State.objects.model._meta.db_table)
             State.objects.all().delete()
             logger.debug("all objects removed")
 
@@ -79,7 +79,7 @@ def import_states(truncate=False):
             except IntegrityError as exception:
                 logger.warning("integrity error(%s): %s", str(exception), line)
 
-        logger.info("import complete")
+        logger.info("import complete for %s", State.objects.model._meta.db_table)
 
 
 BATCH_SIZE=50000
@@ -100,7 +100,7 @@ def import_counties(truncate=True):
     # TODO: Identify and log problematic entries
     with transaction.atomic():
         if truncate:
-            logger.info("truncating table")
+            logger.info("truncating table %s", County.objects.model._meta.db_table)
             County.objects.all().delete()
             logger.debug("all objects removed")
 
@@ -144,4 +144,4 @@ def import_counties(truncate=True):
         logger.debug("completed import of %d rows %.2f%% of total",
                      completed_rows, 100*float(completed_bytes / total_bytes))
 
-    logger.info("import complete")
+    logger.info("import complete for %s", County.objects.model._meta.db_table)

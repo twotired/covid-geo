@@ -1,11 +1,9 @@
 from celery import shared_task
-import requests
 import logging
-from django.db.utils import IntegrityError
 
 from .models import *
 
-logger = logging.getLogger()
+logger = logging.getLogger(__name__)
 
 CSV_FILENAME = 'president_county_candidate.csv'
 SCRATCH_DIR = '/data/scratch'
