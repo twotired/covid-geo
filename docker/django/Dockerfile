@@ -32,7 +32,7 @@ RUN apk update && \
           python3-dev \
           py3-setuptools
 
-RUN ln /usr/bin/python3 /usr/bin/python
+#RUN ln /usr/bin/python3 /usr/bin/python
 
 CMD python3
 
